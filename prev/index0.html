@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Certificate Generator | SIES GST</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Certificate Generator</h2>
+        <p>Official tool for <b>SIES GST</b> Certificate Generation.</p>
+        
+        <div class="form-group">
+            <input type="text" id="name" placeholder="Student Full Name" maxlength="30" required 
+                   oninput="document.getElementById('count').innerText = this.value.length + '/30'">
+            <span id="count" style="font-size: 12px; color: gray; display: block; text-align: right; margin-top: -10px; margin-bottom: 15px;">0/30</span>
+            
+            <input type="text" id="branch" placeholder="Student Branch (e.g. BE CE)" required>
+            <input type="text" id="purpose" placeholder="Purpose (e.g. Feedback Software)" required>
+            
+            <button id="genBtn" onclick="generateCertificate()">Generate & Download</button>
+        </div>
+
+        <canvas id="certificateCanvas" style="display:none;"></canvas>
+    </div>
+
+    <script>
+        async function generateCertificate() {
+            const name = document.getElementById('name').value;
+            const branch = document.getElementById('branch').value;
+            const purpose = document.getElementById('purpose').value;
+
+            // 1. Validation
+            if(!name || !branch || !purpose) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            if(name.length > 30) {
+                alert("Name is too long! Max 30 characters.");
+                return;
+            }
+
+            const canvas = document.getElementById('certificateCanvas');
+            const ctx = canvas.getContext('2d');
+            const btn = document.getElementById('genBtn');
+            
+            btn.innerText = "Processing...";
+            
+            // Load Font
+            await document.fonts.load('10pt "Great Vibes"');
+
+            const img = new Image();
+            img.src = 'template.jpg'; 
+
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                // --- NAME (Cursive Font) ---
+                ctx.font = '100px "Great Vibes"'; 
+                ctx.fillStyle = '#1a2b4c';
+                ctx.textAlign = 'center';
+                ctx.fillText(name, canvas.width / 2, 748); 
+
+                // --- BRANCH & PURPOSE (Standard Bold Font) ---
+                ctx.font = 'bold 60px "Courier New", Courier, monospace'; 
+                ctx.fillStyle = '#000000';
+                
+                // Branch alignment
+                ctx.fillText(branch, canvas.width / 2 + 50, 883);
+                // Purpose alignment
+                ctx.fillText(purpose.toUpperCase(), canvas.width / 2, 1048);
+
+                // Trigger Download
+                const link = document.createElement('a');
+                link.download = `${name}_Certificate.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                
+                btn.innerText = "Generate & Download";
+            };
+        }
+    </script>
+</body>
+</html>

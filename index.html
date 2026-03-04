@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Internship Certificate | SIES GST</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h2>Certificate Generator</h2>
+        <p>Tool for <b>SIES Graduate School of Technology</b> Certificates.</p>
+        
+        <div class="form-group">
+            <input type="text" id="name" placeholder="Student Full Name" maxlength="30" required 
+                   oninput="document.getElementById('count').innerText = this.value.length + '/30'">
+            <span id="count" style="font-size: 12px; color: gray; display: block; text-align: right; margin-top: -10px; margin-bottom: 15px;">0/30</span>
+            
+            <input type="text" id="id" placeholder="Certificate ID (e.g. CE/INT/2026/01)" required>
+            <input type="text" id="dates" placeholder="Dates (e.g. 23-06-25 to 26-07-25)" required>
+            <input type="text" id="project" placeholder="Project Title" required>
+            
+            <button id="genBtn" onclick="generateCertificate()">Generate & Download</button>
+        </div>
+
+        <canvas id="certificateCanvas" style="display:none;"></canvas>
+    </div>
+
+    <script>
+        async function generateCertificate() {
+            const name = document.getElementById('name').value;
+            const certId = document.getElementById('id').value;
+            const dates = document.getElementById('dates').value;
+            const project = document.getElementById('project').value;
+
+            if(!name || !certId || !dates || !project) {
+                alert("Please fill all fields");
+                return;
+            }
+
+            const canvas = document.getElementById('certificateCanvas');
+            const ctx = canvas.getContext('2d');
+            const btn = document.getElementById('genBtn');
+            
+            btn.innerText = "Processing...";
+            await document.fonts.load('10pt "Great Vibes"');
+
+            const img = new Image();
+            img.src = 'template.jpg'; 
+
+            img.onload = function() {
+                canvas.width = img.width;
+                canvas.height = img.height;
+                ctx.drawImage(img, 0, 0);
+
+                // --- 1. CERTIFICATE ID (Top Right Line) ---
+                ctx.font = '28px Arial';
+                ctx.fillStyle = '#000';
+                ctx.textAlign = 'center';
+                // Positioned right on the top-right line
+                ctx.fillText(certId, 1700, 150);
+
+                // --- 2. STUDENT NAME (Cursive - Main Line) ---
+                ctx.font = '100px "Great Vibes"'; 
+                ctx.fillStyle = '#1a2b4c';
+                ctx.textAlign = 'center';
+                // Lowered significantly to sit on the main center line
+                ctx.fillText(name, canvas.width / 2, 743); 
+
+                // --- 3. INTERNSHIP DATES (Inside the paragraph) ---
+                ctx.font = 'bold 28px Arial';
+                ctx.fillStyle = '#333';
+                // Positioned to fill the gap between "from" and "to"
+                ctx.fillText(dates, 1400, 850);
+
+                // --- 4. PROJECT TITLE (Bottom-most line) ---
+                ctx.font = 'bold 30px "Courier New", Courier, monospace'; 
+                ctx.fillStyle = '#000';
+                // Positioned on the line following "project titled"
+                ctx.fillText(`"${project.toUpperCase()}"`, canvas.width / 2, 1000);
+
+                // Export
+                const link = document.createElement('a');
+                link.download = `${name}_Internship_Certificate.png`;
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+                
+                btn.innerText = "Generate & Download";
+            };
+        }
+    </script>
+</body>
+</html>
